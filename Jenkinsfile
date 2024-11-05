@@ -6,6 +6,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    args '-v $WORKSPACE/node_modules:/app/node_modules' // Volume for caching node_modules
                     reuseNode true
                 }
             }
@@ -24,16 +25,23 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    args '-v $WORKSPACE/node_modules:/app/node_modules' // Volume for caching node_modules
                     reuseNode true
                 }
             }
-            
+
             steps{
                 sh '''
                     test -f build/index.html
                     npm test
                 '''
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'test-results/junit.xml'
         }
     }
 }
